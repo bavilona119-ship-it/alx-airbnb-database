@@ -1,4 +1,4 @@
--- Airbnb Database Schema
+-- 3. Seed the Database with Sample Data
 -- Normalized to 3NF (removed derived attributes like total_price)
 
 -- =======================
