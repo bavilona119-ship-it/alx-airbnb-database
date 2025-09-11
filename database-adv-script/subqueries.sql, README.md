@@ -1,5 +1,5 @@
--- =====================================
--- 1. Non-Correlated Subquery
+
+# 1. Non-Correlated Subquery
 -- Find all properties where the average rating is greater than 4.0
 -- =====================================
 SELECT 
