@@ -1,4 +1,4 @@
--- =====================================
+ -- =====================================
 -- 1. INNER JOIN
 -- Retrieve all bookings and the respective users who made those bookings
 -- =====================================
