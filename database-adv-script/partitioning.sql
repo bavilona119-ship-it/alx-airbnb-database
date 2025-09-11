@@ -1,44 +1,29 @@
 -- =====================================
--- Initial Query: Retrieve all bookings with user, property, and payment details
+-- Partitioning the Bookings Table by start_date
 -- =====================================
-EXPLAIN ANALYZE
-SELECT 
-    b.booking_id,
-    b.start_date,
-    b.end_date,
-    b.total_price,
-    u.user_id,
-    u.first_name,
-    u.last_name,
-    u.email,
-    p.property_id,
-    p.name AS property_name,
-    p.location,
-    pay.payment_id,
-    pay.amount,
-    pay.payment_method
-FROM bookings b
-JOIN users u ON b.user_id = u.user_id
-JOIN properties p ON b.property_id = p.property_id
-LEFT JOIN payments pay ON b.booking_id = pay.booking_id;
 
--- =====================================
--- Optimized Query
--- Optimization: 
---   1. SELECT only needed columns
---   2. Use proper indexes (user_id, property_id, booking_id)
---   3. Keep LEFT JOIN only where optional (payments)
--- =====================================
-EXPLAIN ANALYZE
-SELECT 
-    b.booking_id,
-    b.start_date,
-    b.end_date,
-    u.first_name,
-    u.last_name,
-    p.name AS property_name,
-    pay.amount
-FROM bookings b
-JOIN users u ON b.user_id = u.user_id
-JOIN properties p ON b.property_id = p.property_id
-LEFT JOIN payments pay ON b.booking_id = pay.booking_id;
+-- Step 1: Create the parent table with partitioning enabled
+CREATE TABLE bookings_partitioned (
+    booking_id UUID PRIMARY KEY,
+    property_id UUID NOT NULL,
+    user_id UUID NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    total_price DECIMAL NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) PARTITION BY RANGE (start_date);
+
+-- Step 2: Create partitions by year
+CREATE TABLE bookings_2023 PARTITION OF bookings_partitioned
+    FOR VALUES FROM ('2023-01-01') TO ('2024-01-01');
+
+CREATE TABLE bookings_2024 PARTITION OF bookings_partitioned
+    FOR VALUES FROM ('2024-01-01') TO ('2025-01-01');
+
+CREATE TABLE bookings_2025 PARTITION OF bookings_partitioned
+    FOR VALUES FROM ('2025-01-01') TO ('2026-01-01');
+
+-- Future-proof default partition (optional)
+CREATE TABLE bookings_future PARTITION OF bookings_partitioned
+    DEFAULT;
